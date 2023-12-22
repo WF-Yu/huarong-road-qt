@@ -6,6 +6,8 @@
 #include <QMenu>
 #include <QAction>
 #include <QInputDialog>
+#include <QMouseEvent>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -114,7 +116,31 @@ void MainWindow::generateMenu()
     QAction *exitAction = new QAction(tr("Exit"), this);
     connect(exitAction, &QAction::triggered, this, &QMainWindow::close);
     fileMenu->addAction(exitAction);
+}
 
+
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    QPointF clickPos = view->mapToScene(event->pos());
+    handleMouseClick(clickPos);
+    QMainWindow::mousePressEvent(event);
+}
+
+void MainWindow::handleMouseClick(const QPointF& clickPos)
+{
+    int squareSize = 50;
+    qDebug() << clickPos.x() << ", " << clickPos.y();
+    int clickedX = static_cast<int>(clickPos.x()) / squareSize;
+    int clickedY = (static_cast<int>(clickPos.y()) - 30) / squareSize;
+
+    qDebug() << "Clicked on square at (x, y): (" << clickedX << ", " << clickedY << ")";
+
+    if (clickedX >= 0 && clickedX < mainBoard.size && clickedY >= 0 && clickedY < mainBoard.size) {
+        QGraphicsRectItem* clickedRect = gridCells[clickedY][clickedX];
+        // Perform actions with the clickedRect, e.g., change its color
+        clickedRect->setBrush(QColor(Qt::green));
+    }
 }
 
 

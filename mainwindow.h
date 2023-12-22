@@ -15,6 +15,9 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
+    void mousePressEvent(QMouseEvent *event);
+    void handleMouseClick(const QPointF& clickPos);
+    void handleMouseClickDebug(const QPointF& clickPos);
 
 private slots:
     void newGame();
