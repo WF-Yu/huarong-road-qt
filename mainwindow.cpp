@@ -8,7 +8,7 @@
 #include <QInputDialog>
 #include <QMouseEvent>
 #include <QDebug>
-
+#include "HorizontalMoveableRectItem.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       mainBoard(5, 1)
@@ -50,7 +50,7 @@ void MainWindow::createGrid()
     for (int i = 0; i < N; ++i) { // y
         QVector<QGraphicsRectItem*> row;
         for (int j = 0; j < N; ++j) { // x
-            QGraphicsRectItem *rect = new QGraphicsRectItem(j * squareSize, i * squareSize, squareSize, squareSize);
+            QGraphicsRectItem *rect = new HorizontalMovableRectItem(j * squareSize, i * squareSize, squareSize, squareSize);
             if (mainBoard.getCarID(j,i) == 99) {
                 rect->setBrush(QColor(Qt::red));
             }
@@ -126,8 +126,16 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     handleMouseClick(clickPos);
     QMainWindow::mousePressEvent(event);
 }
-
 void MainWindow::handleMouseClick(const QPointF& clickPos)
+{
+    int squareSize = 50;
+    qDebug() << clickPos.x() << ", " << clickPos.y();
+    int clickedX = static_cast<int>(clickPos.x()) / squareSize;
+    int clickedY = (static_cast<int>(clickPos.y()) - 30) / squareSize;
+
+
+}
+void MainWindow::handleMouseClickDebug(const QPointF& clickPos)
 {
     int squareSize = 50;
     qDebug() << clickPos.x() << ", " << clickPos.y();
