@@ -20,8 +20,6 @@ set(PROJECT_SOURCES
         mainwindow.h
         board.h board.cpp
         car.h car.cpp
-        HorizontalMoveableRectItem.h
-        VerticalMoveableRectItem.h
         mainwindow.ui
 )
 

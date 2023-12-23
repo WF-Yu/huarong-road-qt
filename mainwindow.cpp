@@ -50,7 +50,7 @@ void MainWindow::createGrid()
     for (int i = 0; i < N; ++i) { // y
         QVector<QGraphicsRectItem*> row;
         for (int j = 0; j < N; ++j) { // x
-            QGraphicsRectItem *rect = new HorizontalMovableRectItem(j * squareSize, i * squareSize, squareSize, squareSize);
+            QGraphicsRectItem *rect; // = new HorizontalMovableRectItem(j * squareSize, i * squareSize, squareSize, squareSize);
             if (mainBoard.getCarID(j,i) == 99) {
                 rect->setBrush(QColor(Qt::red));
             }
