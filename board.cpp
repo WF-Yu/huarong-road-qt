@@ -40,7 +40,7 @@ void Board::generateRandomCars() {
     data[goalCar.row][goalCar.column] = goalCar.ID;
     data[goalCar.row + 1][goalCar.column] = goalCar.ID;
 
-
+do {
     // Place cars of length 2
     int i = 0;
     int cnt = 10000;
@@ -128,6 +128,9 @@ void Board::generateRandomCars() {
             break;
     }
     numL3cars = i;
+
+    // check if valid!
+} while (valid());
     return;
 }
 
@@ -142,7 +145,17 @@ bool Board::cleared(){
 }
 bool Board::bfs(){
 
-    // if find a answer
+    // one movement each time
+    /*Board visitedBoards[];
+    Board Queue[];
+    root-->Queue
+    Queue[head]-->Visited
+    for (Queue[head].allPosibleChild)
+            if not visited
+            push into Queue;
+    */
+    // how to remember the steps?
+    // if find an answer
     return true;
 }
 void Board::update(){
@@ -196,4 +209,8 @@ Car* Board::getCar(int x, int y){
     if (carID == goalCar.ID) return &goalCar;
     else if (carID <= numL2cars) return &L2cars[carID - 1];
     else return &L3cars[carID - numL2cars - 1]; // the name of variables are really terrible!!!! like shit
+}
+bool Board::valid(){
+    // check is there is an answer.
+    return bfs();
 }

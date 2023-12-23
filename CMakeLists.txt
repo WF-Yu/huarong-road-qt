@@ -20,6 +20,9 @@ set(PROJECT_SOURCES
         mainwindow.h
         board.h board.cpp
         car.h car.cpp
+        treenode.h treenode.cpp
+        movement.h movement.cpp
+        queuenode.h queuenode.cpp
         mainwindow.ui
 )
 
