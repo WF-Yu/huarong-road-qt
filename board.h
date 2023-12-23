@@ -11,6 +11,8 @@ public:
     bool bfs();
     bool cleared();
     int getCarID(int x, int y) { return data[x][y]; }
+    Car* getCar(int x, int y);
+    void update(); // called after user moved car.
     int size; // 4*4 5*5 6*6
     int difficulty;
 

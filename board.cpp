@@ -1,5 +1,6 @@
 #include <ctime>
 #include <cstdlib>
+#include <QDebug>
 #include "board.h"
 
 Board::Board(int _size, int _difficulty)
@@ -67,7 +68,7 @@ void Board::generateRandomCars() {
 
             data[car.row][car.column] = car.ID;
             data[car.row][car.column + 1] = car.ID;
-            L2cars[car.ID] = car;
+            L2cars[i] = car;
             i++;
 
         } else if (data[car.row][car.column] == 0 &&
@@ -75,7 +76,7 @@ void Board::generateRandomCars() {
                    car.row + 1 < size) { // Vertical
             data[car.row][car.column] = car.ID;
             data[car.row + 1][car.column] = car.ID;
-            L2cars[car.ID] = car;
+            L2cars[i] = car;
             i++;
         }
         if (i == numL2cars)
@@ -110,7 +111,7 @@ void Board::generateRandomCars() {
             data[car.row][car.column] = car.ID;
             data[car.row][car.column + 1] = car.ID;
             data[car.row][car.column + 2] = car.ID;
-            L3cars[car.ID] = car;
+            L3cars[i] = car;
             i++;
 
         } else if (data[car.row][car.column] == 0 &&
@@ -120,7 +121,7 @@ void Board::generateRandomCars() {
             data[car.row][car.column] = car.ID;
             data[car.row + 1][car.column] = car.ID;
             data[car.row + 2][car.column] = car.ID;
-            L3cars[car.ID] = car;
+            L3cars[i] = car;
             i++;
         }
         if (i == numL3cars)
@@ -143,4 +144,56 @@ bool Board::bfs(){
 
     // if find a answer
     return true;
+}
+void Board::update(){
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            data[i][j] = 0;
+        }
+    }
+
+    data[goalCar.row][goalCar.column] = goalCar.ID;
+    data[goalCar.row + 1][goalCar.column] = goalCar.ID;
+    int carID = 0;
+    for (int i = 0; i < numL2cars; i++) {
+        carID++;
+        Car* car = &L2cars[i];
+        if (car->direction == 1) {
+            for (int l = 0; l < car->length; l++){
+                data[car->row][car->column + l] = car->ID;
+            }
+        }
+        else {
+            for (int l = 0; l < L2cars[i].length; l++){
+                data[car->row + l][car->column] = car->ID;
+            }
+        }
+    }
+    for (int i = 0; i < numL3cars; i++) {
+        carID++;
+        Car* car = &L3cars[i];
+        if (car->direction == 1) {
+            for (int l = 0; l < car->length; l++){
+                data[car->row][car->column + l] = car->ID;
+            }
+        }
+        else {
+            for (int l = 0; l < L2cars[i].length; l++){
+                data[car->row + l][car->column] = car->ID;
+            }
+        }
+    }
+}
+Car* Board::getCar(int x, int y){
+    // return the pointer to the car locates in the given position.
+    // return null if there is no car
+    if (x < 0 || y < 0 || x >= size || y >= size) return nullptr;
+    qDebug() << data[x][y];
+    if (data[x][y] == 0) return nullptr;
+
+    int carID = data[x][y];
+
+    if (carID == goalCar.ID) return &goalCar;
+    else if (carID <= numL2cars) return &L2cars[carID - 1];
+    else return &L3cars[carID - numL2cars - 1]; // the name of variables are really terrible!!!! like shit
 }
