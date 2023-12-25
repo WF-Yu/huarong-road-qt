@@ -8,5 +8,5 @@ Car::Car() {
 
 }
 void Car::move(int direction, int length) {
-
+// should use this one! in mainWindow.cpp.
 }

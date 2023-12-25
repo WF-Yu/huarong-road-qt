@@ -6,8 +6,10 @@ class QueueNode
 {
 public:
     QueueNode();
-private:
-    TreeNode node;
+    ~QueueNode();
+
+    bool ifUsed(Board); // return true if not used
+    TreeNode* node;
     QueueNode* next;
 };
 

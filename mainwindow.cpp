@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
     scene = new QGraphicsScene(this);
     view->setScene(scene);
 
-
+    qDebug() << "hi";
     // Create the initial grid with default value.
     mainBoard.generateRandomCars();
     createGrid();
@@ -65,14 +65,8 @@ void MainWindow::createGrid()
         gridCells.append(row);
     }
 }
-void MainWindow::instructions(){
-    // show instructions to users:
 
-
-    // should be a flag here, and triggered every time when user click the board.
-    // save current borad.
-    // use change the board: generate new route.
-}
+// start a new game
 void MainWindow::newGame()
 {
     bool ok;
@@ -94,9 +88,15 @@ void MainWindow::newGame()
                 mainBoard.difficulty = 3;
            }
         mainBoard.size = newSize;
+        // generate cars for the new game
         mainBoard.generateRandomCars();
         createGrid();
     }
+}
+
+void MainWindow::instructions() {
+    // tell user how to move the cars
+    // user has to follow the instructions strictly
 }
 
 void MainWindow::generateMenu()
@@ -132,24 +132,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
     QMainWindow::mousePressEvent(event);
 }
-/*
-void MainWindow::handleMouseClick(const QPointF& clickPos)
-{
-    int squareSize = 50;
-    qDebug() << clickPos.x() << ", " << clickPos.y();
-    int clickedX = static_cast<int>(clickPos.x()) / squareSize;
-    int clickedY = (static_cast<int>(clickPos.y()) - 30) / squareSize;
 
-    qDebug() << "Clicked on square at (x, y): (" << clickedX << ", " << clickedY << ")";
-
-    if (clickedX >= 0 && clickedX < mainBoard.size && clickedY >= 0 && clickedY < mainBoard.size) {
-        QGraphicsRectItem* clickedRect = gridCells[clickedY][clickedX];
-        // Perform actions with the clickedRect, e.g., change its color
-        clickedRect->setBrush(QColor(Qt::green));
-    }
-}*/
 void MainWindow::handleLeftMouseClick(const QPointF& clickPos)
 {
+
     qDebug() << "left Click----------------------------------";
     // move car left or up
     int squareSize = 50;
@@ -158,6 +144,10 @@ void MainWindow::handleLeftMouseClick(const QPointF& clickPos)
     Car* car = mainBoard.getCar(clickedX, clickedY);
 
     if (car != nullptr) {
+        // test:
+        qDebug() << "car direction: " << car->direction;
+        qDebug() << "car start position: (" << car->row << ", " << car->column << ")";
+        qDebug() << "car length" << car->length;
         qDebug() << "returnd car id = " << car->ID;
         if (car->direction == 1) { // in a row, move up
             qDebug() << "direction = 1";
@@ -176,6 +166,7 @@ void MainWindow::handleLeftMouseClick(const QPointF& clickPos)
             }
         }
         mainBoard.update();
+
         createGrid(); // draw new graph
     }
 }
@@ -189,9 +180,12 @@ void MainWindow::handleRightMouseClick(const QPointF& clickPos)
     int clickedY = (static_cast<int>(clickPos.y()) - 30) / squareSize;
     Car* car = mainBoard.getCar(clickedX, clickedY);
     if (car != nullptr) {
+        // test:
+        qDebug() << "car direction: " << car->direction;
+        qDebug() << "car start position: (" << car->row << ", " << car->column << ")";
+        qDebug() << "car length" << car->length;
         qDebug() << "returnd car id = " << car->ID;
         if (car->direction == 1) { // in a row, move down.
-            qDebug() << "direction = 1";
             if (car->column + car->length < mainBoard.size &&
                 mainBoard.data[car->row][car->column + car->length] == 0)
             {
@@ -201,7 +195,6 @@ void MainWindow::handleRightMouseClick(const QPointF& clickPos)
             }
         }
         else { // in a column, move right.
-           qDebug() << "direction = 2";
            if (car->row + car->length < mainBoard.size &&
                mainBoard.data[car->row + car->length][car->column] == 0) {
                 qDebug() << "before, row = " << car->row;

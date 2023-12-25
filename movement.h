@@ -5,10 +5,13 @@
 class Movement
 {
 public:
-    Movement();
-private:
-    int CarID;
+    Movement(int _carID, int _direction) {
+        carID = _carID;
+        direction = _direction;
+    }
+    int carID;
     int direction;
+    // int length = 1;
 };
 
 #endif // MOVEMENT_H

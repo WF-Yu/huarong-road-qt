@@ -6,10 +6,10 @@ class TreeNode
 {
 public:
     TreeNode();
-private:
-    Board board;
+    ~TreeNode();
+    Board* board;
     TreeNode* parent;
-    Movement move; // movement from parent to itself
+    Movement* move; // movement from parent to itself
 };
 
 #endif // TREENODE_H
