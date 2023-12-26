@@ -18,15 +18,9 @@ Board::Board(int _size, int _difficulty)
     }
 }
 Board::Board(Board _origin, Movement move) {
-    /*
-    int data[6][6]; // 0 if no cars. ID if there is a car
-    Car goalCar;
-    Car L2cars[6]; // length = 2
-    Car L3cars[6]; // length = 3
-    int numL2cars; // number of cars
-    int numL3cars;
-    */
     // copy previous information. Instead of copying all the things, a constructor for car should be better :(
+    size = _origin.size;
+    difficulty = _origin.difficulty;
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < 6; j++) {
             data[i][j] = _origin.data[i][j];
@@ -57,10 +51,12 @@ Board::Board(Board _origin, Movement move) {
 
     Car* car = nullptr;
     // add movement into the board:
+    qDebug() << "Board::Board(Board _origin, Movement move) {: building new board now";
     if (move.carID <= numL2cars) {
         // move a L2 car
         car = &L2cars[move.carID - 1];
     } else car = &L3cars[move.carID - 1 - numL2cars];
+    car->printCar();
     if (move.direction == 1) { // move left or up
         if (car->direction == 1) { // move up
             car->column -= 1;
@@ -79,6 +75,7 @@ Board::Board(Board _origin, Movement move) {
     }
 
     this->update();
+    this->printBoard();
 }
 bool Board::equal(Board _another) {
     /*
@@ -99,10 +96,7 @@ bool Board::equal(Board _another) {
     }
     return true;
 }
-void Board::generateRandomCars() {
-    numL2cars = 2 * difficulty + size - 3;
-    numL3cars = difficulty + 2 * (size - 3);
-
+void Board::clearBoard() {
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             data[i][j] = 0;
@@ -119,19 +113,28 @@ void Board::generateRandomCars() {
     // Place the goal car
     data[goalCar.row][goalCar.column] = goalCar.ID;
     data[goalCar.row + 1][goalCar.column] = goalCar.ID;
+}
+void Board::generateRandomCars() {
+    qDebug()<<"Entered generateRandomCars";
+    std::srand(time(0));
 
+    // maybe we read from File directly......seems random figure generation is not working correctly.
 do {
+    clearBoard();
+    qDebug() << "in generate random cars: try again";
     // Place cars of length 2
     int i = 0;
     int cnt = 10000;
+    numL2cars = difficulty + size - 3;
+    numL3cars = difficulty;
     while(cnt--) {
+        // qDebug() << "-------    while(cnt--) { ------------";
         Car car;
         car.length = 2;
         car.ID = i + 1; // IDs start from 1
-        std::srand(time(0));
         // Randomly choose position and direction
-        car.row = rand() % size;
-        car.column = rand() % size;
+        car.row = rand() % (size - 1);
+        car.column = rand() % (size - 1);
 
         if (rand() % 2 == 0) { // 0 or 1 for horizontal or vertical
             car.direction = 1; // Horizontal
@@ -141,38 +144,50 @@ do {
 
         // Check if the chosen position is available
         bool positionAvailable = true;
-        if (car.direction == 1 &&
+        if (car.direction == 1) {
+            if (
             data[car.row][car.column] == 0 &&
             data[car.row][car.column + 1] == 0 &&
             car.column + 1 < size) { // Horizontal
 
-            data[car.row][car.column] = car.ID;
-            data[car.row][car.column + 1] = car.ID;
-            L2cars[i] = car;
-            i++;
-
+                data[car.row][car.column] = car.ID;
+                data[car.row][car.column + 1] = car.ID;
+                L2cars[i] = car;
+                i+=1;
+                qDebug() << "generated a car:";
+                car.printCar();
+                qDebug() << "i = " << i;
+            }
         } else if (data[car.row][car.column] == 0 &&
                    data[car.row + 1][car.column] == 0 &&
                    car.row + 1 < size) { // Vertical
             data[car.row][car.column] = car.ID;
             data[car.row + 1][car.column] = car.ID;
             L2cars[i] = car;
-            i++;
+            i+=1;
+            qDebug() << "generated a car:";
+            car.printCar();
+            qDebug() << "i = " << i;
+
         }
         if (i == numL2cars)
             break;
-    }
+    } //     while(cnt--) {
+
     numL2cars = i;
+    qDebug() << "Generated " << numL2cars << "L2 cars";
     i = 0;
     cnt = 10000;
     while(cnt--) {
+        // qDebug() << "-------    while(cnt--) { ------------";
+
         Car car;
         car.length = 3;
         car.ID = i + 1 + numL2cars; // IDs start from 1
-        std::srand(time(0));
+        // std::srand(time(0));
         // Randomly choose position and direction
-        car.row = cnt * rand() % size - 1;
-        car.column = cnt * rand() % size - 1;
+        car.row = cnt * rand() % (size - 2);
+        car.column = cnt * rand() % (size - 2);
 
         if (rand() % 2 == 0) { // 0 or 1 for horizontal or vertical
             car.direction = 1; // Horizontal
@@ -182,18 +197,26 @@ do {
 
         // Check if the chosen position is available
         bool positionAvailable = true;
-        if (car.direction == 1 &&
+        if (car.direction == 1){
+            if (
             data[car.row][car.column] == 0 &&
             data[car.row][car.column + 1] == 0 &&
             data[car.row][car.column + 2] == 0 &&
             car.column + 2 < size) { // Horizontal
 
-            data[car.row][car.column] = car.ID;
-            data[car.row][car.column + 1] = car.ID;
-            data[car.row][car.column + 2] = car.ID;
-            L3cars[i] = car;
-            i++;
+                data[car.row][car.column] = car.ID;
+                data[car.row][car.column + 1] = car.ID;
+                data[car.row][car.column + 2] = car.ID;
+                L3cars[i] = car;
+                i+=1;
+                qDebug() << "generated a car:";
+                car.printCar();
+                qDebug() << "Added this car to board";
+                printBoard();
+                qDebug() << "i = " << i;
 
+
+            }
         } else if (data[car.row][car.column] == 0 &&
                    data[car.row + 1][car.column] == 0 &&
                    data[car.row + 2][car.column] == 0 &&
@@ -202,13 +225,20 @@ do {
             data[car.row + 1][car.column] = car.ID;
             data[car.row + 2][car.column] = car.ID;
             L3cars[i] = car;
-            i++;
+            i+=1;
+            qDebug() << "generated a car:";
+            car.printCar();
+            qDebug() << "i = " << i;
+
         }
         if (i == numL3cars)
             break;
     }
     numL3cars = i;
+    qDebug() << "Generated " << numL3cars << "L3 cars";
 
+    qDebug() << "Generated Board and let's check if it is valid!";
+    printBoard();
     // check if valid!
 } while (!valid());
     return;
@@ -225,6 +255,8 @@ bool Board::cleared(){
 }
 
 bool Board::bfs() {
+    bool flag = false;
+    qDebug() << "enter bfs now";
     QueueNode* head = nullptr;
     QueueNode* tail = nullptr;
 
@@ -247,67 +279,126 @@ bool Board::bfs() {
     tail = head;
 
     while (1) { // while there are more children to be added into queue. if there is no more new child to add, it means there is no solution.
+        qDebug() << "entered while loop";
+
 
         bool ifNewNode = false;
         Board* board = head->node->board;
-
+        board->printBoard();
         // add children into queue
         // for each child, we need to check a)if it is used before(compare with nodes in usedQueue)
         //                                  b)if it is a solution
-        for (int i = 0; i < board->numL2cars + board->numL3cars ; i++){
+        for (int i = 0; i < board->numL2cars + board->numL3cars ; i++) {
+            qDebug() << "entered for loop, get a car:";
+
             // for each car:
             Car* car = nullptr;
-            if (i < board->numL2cars) car = &board->L2cars[i];
+            if (i < board->numL2cars ) car = &board->L2cars[i];
             else car = &board->L3cars[i - numL2cars];
 
-            // if (car->direction == 1) { // in a row
-            if ((car->direction == 1) && (car->column - 1 >= 0) ||
-                    (car->direction == 2) && (car->row - 1 >= 0))
-            { // move up or left
-                Movement* move = new Movement(car->ID, 1);
+            car->printCar();
 
-                // generate new Board with this movement.
-                Board* newBoard = new Board(*board, *move);
-                // if the new board is the same as previous board, continue
+            if (((car->direction == 1) && (car->column - 1 >= 0)) ||
+                    ((car->direction == 2) && (car->row - 1 >= 0))) // if not out of boundary
+                if (((car->direction == 1) && (board->data[car->row][car->column - 1] == 0)) ||
+                        ((car->direction == 2) && (board->data[car->row - 1][car->column] == 0)))  // if avaliable
+                { // move up or left
 
-                if (usedQHead != nullptr)
-                    if (!usedQHead->ifUsed(*newBoard))
-                        continue;
+                    Movement* move = new Movement(car->ID, 1);
+qDebug() << "before apply movement:";
+board->printBoard();
+                    // generate new Board with this movement.
+qDebug() << "after  apply movement:";
+                    Board* newBoard = new Board(*board, *move);
+                    // if the new board is the same as previous board, continue
 
-                // check if this is a solution:
-                if (newBoard->cleared()) {
-                    // do something to store this solution!!!!!!!!!!!!!!!!!!!
-                    return true;
+                    if (usedQHead != nullptr)
+                        if (!usedQHead->ifUsed(*newBoard))
+                            goto l1;
+
+                    // check if this is a solution:
+                    if (newBoard->cleared()) {
+                        // do something to store this solution!!!!!!!!!!!!!!!!!!!
+                        qDebug() << "find the solution!";
+                        flag = true;
+                        goto leave;
+                    }
+
+                    // generate new treeNode
+                    TreeNode* newTreeNode = new TreeNode();
+                    newTreeNode->board = newBoard;
+                    newTreeNode->move = move;
+                    newTreeNode->parent = head->node;
+
+                    // generate new queue node based on this treenode and add it to queue:
+                    QueueNode* newQueuenode = new QueueNode();
+                    newQueuenode->node = newTreeNode;
+                    tail->next = newQueuenode;
+                    tail = tail->next;
+                    tail->next = nullptr;
+                    ifNewNode = true;
                 }
-                // generate new treeNode
-                TreeNode* newTreeNode = new TreeNode();
-                newTreeNode->board = newBoard;
-                newTreeNode->move = move;
-                newTreeNode->parent = head->node;
+l1:
+            if (((car->direction == 1) && (car->column + car->length < board->size)) ||
+                ((car->direction == 2) && (car->row + car->length < board->size)))
+                if (((car->direction == 1) && (board->data[car->row][car->column + car->length] == 0)) ||
+                        ((car->direction == 2) && (board->data[car->row + car->length][car->column] == 0)))
+                { // move down or right
 
-                // generate new queue node based on this treenode and add it to queue:
-                QueueNode* newQueuenode = new QueueNode();
-                newQueuenode->node = newTreeNode;
-                tail->next = newQueuenode;
-                tail = tail->next;
-                tail->next = nullptr;
-                ifNewNode = true;
-            }
-            if ((car->direction == 1) && (car->column + car->length < board->size) ||
-                (car->direction == 2) && (car->row + car->length < board->size)) { // move down or right
-                Movement* move = new Movement(car->ID, 2);
+                    Movement* move = new Movement(car->ID, 2);
+
+                    // generate new Board with this movement.
+                    Board* newBoard = new Board(*board, *move);
+                    // if the new board is the same as previous board, continue
+                    if (usedQHead != nullptr)
+                        if (!usedQHead->ifUsed(*newBoard))
+                            goto l2;
+
+                    // check if this is a solution:
+                    if (newBoard->cleared()) {
+                        // do something to store this solution!
+                        qDebug() << "find the solution!";
+
+                        flag = true;
+                        goto leave;
+                    }
+
+                    // generate new treeNode
+                    TreeNode* newTreeNode = new TreeNode();
+                    newTreeNode->board = newBoard;
+                    newTreeNode->move = move;
+                    newTreeNode->parent = head->node;
+
+                    // generate new queue node based on this treenode and add it to queue:
+                    QueueNode* newQueuenode = new QueueNode();
+                    newQueuenode->node = newTreeNode;
+                    tail->next = newQueuenode;
+                    tail = tail->next;
+                    tail->next = nullptr;
+                    ifNewNode = true;
+                }
+        }
+l2:
+        // add the movement of goal car into queue also:
+        if (goalCar.row > 0)
+            if (board->data[goalCar.row - 1][goalCar.column] == 0)
+            {
+                Movement* move = new Movement(goalCar.ID, 1);
 
                 // generate new Board with this movement.
                 Board* newBoard = new Board(*board, *move);
                 // if the new board is the same as previous board, continue
                 if (usedQHead != nullptr)
                     if (!usedQHead->ifUsed(*newBoard))
-                        continue;
+                        goto l3;
 
                 // check if this is a solution:
                 if (newBoard->cleared()) {
                     // do something to store this solution!
-                    return true;
+                    qDebug() << "find the solution!";
+
+                    flag = true;
+                    goto leave;
                 }
 
                 // generate new treeNode
@@ -324,33 +415,77 @@ bool Board::bfs() {
                 tail->next = nullptr;
                 ifNewNode = true;
             }
+    l3:
+        if (goalCar.row + 2 < size)
+            if (board->data[goalCar.row + 1][goalCar.column] == 0) {
+                Movement* move = new Movement(goalCar.ID, 2);
 
-        }
+                // generate new Board with this movement.
+                Board* newBoard = new Board(*board, *move);
+                // if the new board is the same as previous board, continue
+                if (usedQHead != nullptr)
+                    if (!usedQHead->ifUsed(*newBoard)) // if used: return false
+                        goto l4;
 
+                // check if this is a solution:
+                if (newBoard->cleared()) {
+                    // do something to store this solution!
+                    qDebug() << "find the solution!";
+
+                    flag = true;
+                    goto leave;
+                }
+
+                // generate new treeNode
+                TreeNode* newTreeNode = new TreeNode();
+                newTreeNode->board = newBoard;
+                newTreeNode->move = move;
+                newTreeNode->parent = head->node;
+
+                // generate new queue node based on this treenode and add it to queue:
+                QueueNode* newQueuenode = new QueueNode();
+                newQueuenode->node = newTreeNode;
+                tail->next = newQueuenode;
+                tail = tail->next;
+                tail->next = nullptr;
+                ifNewNode = true;
+            }
+l4:
         if (!ifNewNode) break;
-
         // move head into usedQueue.
-        usedQTail->next = head;
-        usedQTail = usedQTail->next;
-        usedQTail->next = nullptr;
-        head = head->next;
-        // if (head == nullptr) return false; // no solutions. actually program will not come to here.
-    }
+        QueueNode* temp = head->next;
+        if (usedQHead == nullptr) {
+            usedQHead = head;
+            usedQTail = head;
+            usedQTail->next = nullptr;
+        }
+        else {
+            usedQTail->next = head;
+            usedQTail = usedQTail->next;
+            usedQTail->next = nullptr;
+        }
+        head = temp;
+        if (head == nullptr) goto leave; // no solutions. actually program will not come to here.
+    } // while(1)
+
     // delete all created items:
-    QueueNode* temp = head->next;
-    while(temp != nullptr) {
+leave:
+    QueueNode* temp;
+    while(head != nullptr) {
+        temp = head->next;
         delete head;
         head = temp;
-        temp = head->next;
+
     }
-    temp = usedQHead->next;
-    while(temp != nullptr) {
+    while(usedQHead != nullptr) {
+        temp = usedQHead->next;
         delete usedQHead;
         usedQHead = temp;
-        temp = usedQHead->next;
     }
-    return false;
+    qDebug() << "leaving bfs now, flag: " << flag;
+    return flag;
 }
+
 
 void Board::update(){ // put car information into data[][].
     for (int i = 0; i < size; i++) {
@@ -361,9 +496,7 @@ void Board::update(){ // put car information into data[][].
 
     data[goalCar.row][goalCar.column] = goalCar.ID;
     data[goalCar.row + 1][goalCar.column] = goalCar.ID;
-    int carID = 0;
     for (int i = 0; i < numL2cars; i++) {
-        carID++;
         Car* car = &L2cars[i];
         if (car->direction == 1) {
             for (int l = 0; l < car->length; l++){
@@ -377,7 +510,6 @@ void Board::update(){ // put car information into data[][].
         }
     }
     for (int i = 0; i < numL3cars; i++) {
-        carID++;
         Car* car = &L3cars[i];
         if (car->direction == 1) {
             for (int l = 0; l < car->length; l++){
@@ -406,6 +538,21 @@ Car* Board::getCar(int x, int y){
 }
 bool Board::valid(){
     // check is there is an answer.
-    // return bfs();
-    return true;
+    if (cleared()) return false;
+    return bfs();
+    // return true;
+}
+
+void Board::printBoard()  {
+    qDebug() << "--------------------------------";
+    for (int i = 0; i < size; i++) {
+        qDebug() << data[0][i] << ", " << data[1][i] << ", " <<
+                    data[2][i] << ", " << data[3][i] << ", " <<
+                    data[4][i] << ", " << data[5][i];
+    }
+    qDebug() << "numL2cars: " << numL2cars;
+    qDebug() << "numL3cars: " << numL3cars;
+
+    qDebug() << "--------------------------------";
+
 }

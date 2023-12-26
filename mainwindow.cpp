@@ -145,10 +145,7 @@ void MainWindow::handleLeftMouseClick(const QPointF& clickPos)
 
     if (car != nullptr) {
         // test:
-        qDebug() << "car direction: " << car->direction;
-        qDebug() << "car start position: (" << car->row << ", " << car->column << ")";
-        qDebug() << "car length" << car->length;
-        qDebug() << "returnd car id = " << car->ID;
+        car->printCar();
         if (car->direction == 1) { // in a row, move up
             qDebug() << "direction = 1";
             if (car->column > 0 && mainBoard.data[car->row][car->column - 1] == 0) {
@@ -166,7 +163,9 @@ void MainWindow::handleLeftMouseClick(const QPointF& clickPos)
             }
         }
         mainBoard.update();
-
+        if (mainBoard.cleared()) {
+            // succeed!
+        }
         createGrid(); // draw new graph
     }
 }
@@ -181,10 +180,7 @@ void MainWindow::handleRightMouseClick(const QPointF& clickPos)
     Car* car = mainBoard.getCar(clickedX, clickedY);
     if (car != nullptr) {
         // test:
-        qDebug() << "car direction: " << car->direction;
-        qDebug() << "car start position: (" << car->row << ", " << car->column << ")";
-        qDebug() << "car length" << car->length;
-        qDebug() << "returnd car id = " << car->ID;
+        car->printCar();
         if (car->direction == 1) { // in a row, move down.
             if (car->column + car->length < mainBoard.size &&
                 mainBoard.data[car->row][car->column + car->length] == 0)
@@ -203,6 +199,10 @@ void MainWindow::handleRightMouseClick(const QPointF& clickPos)
            }
         }
         mainBoard.update();
+        if (mainBoard.cleared()) {
+            // succeed!
+            // show a windows and tell use that he succeed. don't exit. use has to start a new game by himself
+        }
         createGrid(); // draw new graph
     }
 

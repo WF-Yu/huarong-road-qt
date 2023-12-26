@@ -10,6 +10,8 @@ public:
     void move(int direction, int length);
     int getID() { return ID; }
 
+    void printCar();
+
     int row;
     int column;
     int length;

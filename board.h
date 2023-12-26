@@ -17,6 +17,10 @@ public:
     int getCarID(int x, int y) { return data[x][y]; }
     Car* getCar(int x, int y);
     void update(); // called after user moved car.
+    void clearBoard();
+
+    // for test
+    void printBoard();
 
     int size; // 4*4 5*5 6*6
     int difficulty;
