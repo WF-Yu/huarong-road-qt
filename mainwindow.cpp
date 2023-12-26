@@ -50,37 +50,39 @@ void MainWindow::createGrid()
         // get the instruction: which car to click, and which direction
         mainBoard.getInstructions(&instructedCarID, &instructedDirection);
         Car* car = nullptr;
-        if (instructedCarID < mainBoard.numL2cars) {
+        if (instructedCarID != -1) {
+            if (instructedCarID <= mainBoard.numL2cars) {
             // L2 car
-           car = &mainBoard.L2cars[instructedCarID - 1];
+                car = &mainBoard.L2cars[instructedCarID - 1];
+            }
+            else {
+               // L3 car
+               car = &mainBoard.L2cars[instructedCarID - mainBoard.numL2cars - 1];
+            }
+
+           if (car->direction == 1){
+               if (instructedDirection == 1){ // move up
+                    rectRow = car->row;
+                    rectColumn = car->column;
+               }
+               else { // move down
+                   rectRow = car->row;
+                   rectColumn = car->column + car->length - 1;
+               }
+           }
+           else {
+               if (instructedDirection == 1){ // move left
+                   rectRow = car->row;
+                   rectColumn = car->column;
+               }
+               else { // move right
+                   rectRow = car->row + car->length - 1;
+                   rectColumn = car->column;
+               }
+           }
         }
-        else {
-           // L3 car
-           car = &mainBoard.L2cars[instructedCarID - mainBoard.numL2cars - 1];
-        }
-       if (car->direction == 1){
-           if (instructedDirection == 1){ // move up
-                rectRow = car->row;
-                rectColumn = car->column;
-           }
-           else { // move down
-               rectRow = car->row;
-               rectColumn = car->column + car->length - 1;
-           }
-       }
-       else {
-           if (instructedDirection == 1){ // move left
-               rectRow = car->row;
-               rectColumn = car->column;
-           }
-           else { // move right
-               rectRow = car->row + car->length - 1;
-               rectColumn = car->column;
-           }
-       }
+
     }
-
-
     gridCells.clear();
 
     // Calculate the size of each square

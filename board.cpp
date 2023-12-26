@@ -333,7 +333,7 @@ qDebug() << "after  apply movement:";
                     // check if this is a solution:
                     if (newBoard->cleared()) {
                         // do something to store this solution!!!!!!!!!!!!!!!!!!!
-                        qDebug() << "find the solution!";
+                        qDebug() << "find the solution! 337";
                         getNextMove(newTreeNode);
                         flag = true;
                         goto leave;
@@ -372,7 +372,7 @@ l1:
                     // check if this is a solution:
                     if (newBoard->cleared()) {
                         // do something to store this solution!
-                        qDebug() << "find the solution!";
+                        qDebug() << "find the solution!376";
                         getNextMove(newTreeNode);
 
                         flag = true;
@@ -415,7 +415,7 @@ l2:
                 // check if this is a solution:
                 if (newBoard->cleared()) {
                     // do something to store this solution!
-                    qDebug() << "find the solution!";
+                    qDebug() << "find the solution!418";
                     getNextMove(newTreeNode);
 
                     flag = true;
@@ -453,7 +453,7 @@ l2:
                 // check if this is a solution:
                 if (newBoard->cleared()) {
                     // do something to store this solution!
-                    qDebug() << "find the solution!";
+                    qDebug() << "find the solution!456";
                     getNextMove(newTreeNode);
 
                     flag = true;
@@ -482,6 +482,7 @@ l4:
 
     // delete all created items:
 leave:
+    qDebug() << "leaving bfs, clear memory first";
     QueueNode* temp;
     while(head != nullptr) {
         temp = head->next;
@@ -574,13 +575,20 @@ void Board::getInstructions(int* carID, int* direction) {
     bfs();
     *carID = nextMove.carID;
     *direction = nextMove.direction;
+    nextMove.carID = -1;
+    nextMove.direction = -1;
 }
 void Board::getNextMove(TreeNode* lastNode){
     TreeNode* currentNode = lastNode;
     Movement* currentMove = currentNode->move;
-    while (lastNode->parent->move != nullptr) {
+    qDebug() << "move ID = " << currentMove->carID;
+    qDebug() << "move Direction = " << currentMove->direction;
+    while (currentNode->parent->move != nullptr) {
         currentNode = currentNode->parent;
         currentMove = currentNode->move;
+
+        qDebug() << "move ID = " << currentMove->carID;
+        qDebug() << "move Direction = " << currentMove->direction;
     }
     nextMove.carID = currentMove->carID;
     nextMove.direction = currentMove->direction;
