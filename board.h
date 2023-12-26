@@ -2,6 +2,7 @@
 #define BOARD_H
 #include "car.h"
 #include "movement.h"
+class TreeNode;
 class Board
 {
 public:
@@ -13,14 +14,15 @@ public:
     bool valid(); // check if current layout is valid and has a answer.
     void generateRandomCars(); // put cars into board based on difficulty and gridsize
     bool bfs();
-    bool cleared(); // ?? I forget how to use it!
+    bool cleared();
     int getCarID(int x, int y) { return data[x][y]; }
     Car* getCar(int x, int y);
     void update(); // called after user moved car.
     void clearBoard();
-
+    void getInstructions(int*, int*);
     // for test
     void printBoard();
+    void getNextMove(TreeNode*);
 
     int size; // 4*4 5*5 6*6
     int difficulty;
@@ -30,6 +32,8 @@ public:
     Car L3cars[6]; // length = 3
     int numL2cars; // number of cars
     int numL3cars;
+
+    Movement nextMove;
  };
 
 #endif // BOARD_H

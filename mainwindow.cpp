@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
     scene = new QGraphicsScene(this);
     view->setScene(scene);
 
+    ifShowInstructions = false;
+
     qDebug() << "hi";
     // Create the initial grid with default value.
     mainBoard.generateRandomCars();
@@ -40,6 +42,45 @@ void MainWindow::createGrid()
         }
     }
 
+    int instructedCarID = 0;
+    int instructedDirection = 0;
+    int rectRow = -1;
+    int rectColumn = -1;
+    if (ifShowInstructions) {
+        // get the instruction: which car to click, and which direction
+        mainBoard.getInstructions(&instructedCarID, &instructedDirection);
+        Car* car = nullptr;
+        if (instructedCarID < mainBoard.numL2cars) {
+            // L2 car
+           car = &mainBoard.L2cars[instructedCarID - 1];
+        }
+        else {
+           // L3 car
+           car = &mainBoard.L2cars[instructedCarID - mainBoard.numL2cars - 1];
+        }
+       if (car->direction == 1){
+           if (instructedDirection == 1){ // move up
+                rectRow = car->row;
+                rectColumn = car->column;
+           }
+           else { // move down
+               rectRow = car->row;
+               rectColumn = car->column + car->length - 1;
+           }
+       }
+       else {
+           if (instructedDirection == 1){ // move left
+               rectRow = car->row;
+               rectColumn = car->column;
+           }
+           else { // move right
+               rectRow = car->row + car->length - 1;
+               rectColumn = car->column;
+           }
+       }
+    }
+
+
     gridCells.clear();
 
     // Calculate the size of each square
@@ -50,7 +91,10 @@ void MainWindow::createGrid()
         QVector<QGraphicsRectItem*> row;
         for (int j = 0; j < N; ++j) { // x
             QGraphicsRectItem *rect = new QGraphicsRectItem(j * squareSize, i * squareSize, squareSize, squareSize);
-            if (mainBoard.getCarID(j,i) == 99) {
+            if (j == rectRow && i == rectColumn) {
+                rect->setBrush(QColor(Qt::black));
+            }
+            else if (mainBoard.getCarID(j,i) == 99) {
                 rect->setBrush(QColor(Qt::red));
             }
             else if (mainBoard.getCarID(j,i) > mainBoard.numL2cars)
@@ -69,6 +113,7 @@ void MainWindow::createGrid()
 // start a new game
 void MainWindow::newGame()
 {
+    ifShowInstructions = false;
     bool ok;
     // int gridSize;
     int newSize = QInputDialog::getInt(this, tr("New Grid Size"), tr("Enter the new grid size for this round:"), mainBoard.size, 1, 100, 1, &ok);
@@ -96,7 +141,8 @@ void MainWindow::newGame()
 
 void MainWindow::instructions() {
     // tell user how to move the cars
-    // user has to follow the instructions strictly
+    ifShowInstructions = true;
+    createGrid();
 }
 
 void MainWindow::generateMenu()
@@ -165,6 +211,7 @@ void MainWindow::handleLeftMouseClick(const QPointF& clickPos)
         mainBoard.update();
         if (mainBoard.cleared()) {
             // succeed!
+            ifShowInstructions = false;
         }
         createGrid(); // draw new graph
     }
@@ -202,6 +249,7 @@ void MainWindow::handleRightMouseClick(const QPointF& clickPos)
         if (mainBoard.cleared()) {
             // succeed!
             // show a windows and tell use that he succeed. don't exit. use has to start a new game by himself
+            ifShowInstructions = false;
         }
         createGrid(); // draw new graph
     }

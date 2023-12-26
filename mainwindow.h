@@ -18,6 +18,7 @@ public:
     void mousePressEvent(QMouseEvent *event);
     void handleLeftMouseClick(const QPointF& clickPos);
     void handleRightMouseClick(const QPointF& clickPos);
+    bool ifShowInstructions;
 private slots:
     void newGame();
     void instructions();

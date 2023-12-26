@@ -5,6 +5,7 @@
 class Movement
 {
 public:
+    Movement(){}
     Movement(int _carID, int _direction) {
         carID = _carID;
         direction = _direction;

@@ -11,6 +11,7 @@ Board::Board(int _size, int _difficulty)
     difficulty = _difficulty;
     numL2cars = 0;
     numL3cars = 0;
+
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             data[i][j] = 0;
@@ -21,6 +22,7 @@ Board::Board(Board _origin, Movement move) {
     // copy previous information. Instead of copying all the things, a constructor for car should be better :(
     size = _origin.size;
     difficulty = _origin.difficulty;
+
     for (int i = 0; i < 6; i++) {
         for (int j = 0; j < 6; j++) {
             data[i][j] = _origin.data[i][j];
@@ -143,7 +145,6 @@ do {
         }
 
         // Check if the chosen position is available
-        bool positionAvailable = true;
         if (car.direction == 1) {
             if (
             data[car.row][car.column] == 0 &&
@@ -196,7 +197,6 @@ do {
         }
 
         // Check if the chosen position is available
-        bool positionAvailable = true;
         if (car.direction == 1){
             if (
             data[car.row][car.column] == 0 &&
@@ -316,14 +316,6 @@ qDebug() << "after  apply movement:";
                         if (!usedQHead->ifUsed(*newBoard))
                             goto l1;
 
-                    // check if this is a solution:
-                    if (newBoard->cleared()) {
-                        // do something to store this solution!!!!!!!!!!!!!!!!!!!
-                        qDebug() << "find the solution!";
-                        flag = true;
-                        goto leave;
-                    }
-
                     // generate new treeNode
                     TreeNode* newTreeNode = new TreeNode();
                     newTreeNode->board = newBoard;
@@ -337,6 +329,15 @@ qDebug() << "after  apply movement:";
                     tail = tail->next;
                     tail->next = nullptr;
                     ifNewNode = true;
+
+                    // check if this is a solution:
+                    if (newBoard->cleared()) {
+                        // do something to store this solution!!!!!!!!!!!!!!!!!!!
+                        qDebug() << "find the solution!";
+                        getNextMove(newTreeNode);
+                        flag = true;
+                        goto leave;
+                    }
                 }
 l1:
             if (((car->direction == 1) && (car->column + car->length < board->size)) ||
@@ -354,15 +355,6 @@ l1:
                         if (!usedQHead->ifUsed(*newBoard))
                             goto l2;
 
-                    // check if this is a solution:
-                    if (newBoard->cleared()) {
-                        // do something to store this solution!
-                        qDebug() << "find the solution!";
-
-                        flag = true;
-                        goto leave;
-                    }
-
                     // generate new treeNode
                     TreeNode* newTreeNode = new TreeNode();
                     newTreeNode->board = newBoard;
@@ -376,6 +368,18 @@ l1:
                     tail = tail->next;
                     tail->next = nullptr;
                     ifNewNode = true;
+
+                    // check if this is a solution:
+                    if (newBoard->cleared()) {
+                        // do something to store this solution!
+                        qDebug() << "find the solution!";
+                        getNextMove(newTreeNode);
+
+                        flag = true;
+                        goto leave;
+                    }
+
+
                 }
         }
 l2:
@@ -392,14 +396,6 @@ l2:
                     if (!usedQHead->ifUsed(*newBoard))
                         goto l3;
 
-                // check if this is a solution:
-                if (newBoard->cleared()) {
-                    // do something to store this solution!
-                    qDebug() << "find the solution!";
-
-                    flag = true;
-                    goto leave;
-                }
 
                 // generate new treeNode
                 TreeNode* newTreeNode = new TreeNode();
@@ -414,6 +410,19 @@ l2:
                 tail = tail->next;
                 tail->next = nullptr;
                 ifNewNode = true;
+
+
+                // check if this is a solution:
+                if (newBoard->cleared()) {
+                    // do something to store this solution!
+                    qDebug() << "find the solution!";
+                    getNextMove(newTreeNode);
+
+                    flag = true;
+                    goto leave;
+                }
+
+
             }
     l3:
         if (goalCar.row + 2 < size)
@@ -427,15 +436,6 @@ l2:
                     if (!usedQHead->ifUsed(*newBoard)) // if used: return false
                         goto l4;
 
-                // check if this is a solution:
-                if (newBoard->cleared()) {
-                    // do something to store this solution!
-                    qDebug() << "find the solution!";
-
-                    flag = true;
-                    goto leave;
-                }
-
                 // generate new treeNode
                 TreeNode* newTreeNode = new TreeNode();
                 newTreeNode->board = newBoard;
@@ -449,6 +449,18 @@ l2:
                 tail = tail->next;
                 tail->next = nullptr;
                 ifNewNode = true;
+
+                // check if this is a solution:
+                if (newBoard->cleared()) {
+                    // do something to store this solution!
+                    qDebug() << "find the solution!";
+                    getNextMove(newTreeNode);
+
+                    flag = true;
+                    goto leave;
+                }
+
+
             }
 l4:
         if (!ifNewNode) break;
@@ -555,4 +567,21 @@ void Board::printBoard()  {
 
     qDebug() << "--------------------------------";
 
+}
+void Board::getInstructions(int* carID, int* direction) {
+    qDebug() << "Entering GetInstructions!";
+
+    bfs();
+    *carID = nextMove.carID;
+    *direction = nextMove.direction;
+}
+void Board::getNextMove(TreeNode* lastNode){
+    TreeNode* currentNode = lastNode;
+    Movement* currentMove = currentNode->move;
+    while (lastNode->parent->move != nullptr) {
+        currentNode = currentNode->parent;
+        currentMove = currentNode->move;
+    }
+    nextMove.carID = currentMove->carID;
+    nextMove.direction = currentMove->direction;
 }
