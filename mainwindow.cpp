@@ -54,11 +54,12 @@ void MainWindow::generatePromptMsg() {
     // Create and add the label to the layout
     QLabel *label = new QLabel(
         "汽车华容道：将目标车右移，移动到窗口最右侧（当目标车右侧没有车辆阻拦时，即为通关）\n"
-        "绿色：键盘当前位置\n"
         "红色：目标车\n"
         "黄色：长度为2的车\n"
         "蓝色：长度为3的车\n"
+        "鼠标操作：左键（左移或上移），右键（右移或下移）\n"
         "键盘操作：\n"
+        "    绿色：键盘当前位置\n"
         "    wsad键：上下左右\n"
         "    ctrl+wsad：将键盘所在位置的车向上下左右方向移动\n"
         , this);
