@@ -63,6 +63,7 @@ private:
     int currentSteps;
     int CurrentTime;
 
+    bool  fail;
     QTimer timer;
     Board mainBoard; // board to show
     QLabel* clickCountLabel;// = new QLabel("Mouse Clicks: 0 | Keyboard Clicks: 0", this);

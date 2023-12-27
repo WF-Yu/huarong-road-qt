@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     CurrentTime = 0;
     clickCountLabel = nullptr;
     timeLabel = nullptr;
+    fail = false;
     // Create the main view
     view = new QGraphicsView(this);
     setCentralWidget(view);
@@ -104,7 +105,11 @@ void MainWindow::updateClickCount() {
     currentSteps++;
     updateClickCountLabel();
     if (currentSteps == maxSteps) {
-        ShowFailInfo();
+        if (!fail) {
+            fail = true;
+            ShowFailInfo();
+        }
+
     }
 }
 
@@ -200,7 +205,7 @@ void MainWindow::createGrid()
 void MainWindow::newGame()
 {
 
-
+    fail = false;
     ifShowInstructions = false;
     bool ok;
     // int gridSize;
@@ -227,6 +232,7 @@ void MainWindow::newGame()
         currentSteps = 0;
         CurrentTime = 0;
         elapsedTimer.start();
+        updateClickCountLabel();
     }
 }
 
@@ -268,7 +274,10 @@ void MainWindow::updateCurrentTime() {
     timeLabel->setText(QString("Left time %1").arg(MaxTime - CurrentTime));
     if (CurrentTime == MaxTime) {
         elapsedTimer.stop();
-        ShowFailInfo();
+        if (fail == false) {
+            fail = true;
+            ShowFailInfo();
+        }
     }
 }
 void MainWindow::mousePressEvent(QMouseEvent *event)
@@ -342,6 +351,7 @@ void MainWindow::handKeyPress_CtrlA() { // move to left
     mainBoard.update(); // update new car position to board
     if (mainBoard.cleared()) {
         // succeed!
+
         ShowSuccessInfo();
         ifShowInstructions = false;
     }
@@ -505,6 +515,7 @@ void MainWindow::handleRightMouseClick(const QPointF& clickPos)
 
 }
 void MainWindow::ShowSuccessInfo() {
+    fail = true;
     // 创建 QMessageBox 实例
     QMessageBox msgBox;
 
@@ -526,25 +537,24 @@ void MainWindow::ShowSuccessInfo() {
     newGame();
 }
 void MainWindow::ShowFailInfo() {
-    // 创建 QMessageBox 实例
-    QMessageBox msgBox;
+        // 创建 QMessageBox 实例
+        QMessageBox msgBox;
 
-    // 设置提示框的标题
-    msgBox.setWindowTitle("提示");
+        // 设置提示框的标题
+        msgBox.setWindowTitle("提示");
 
-    // 设置提示框的文本信息
-    msgBox.setText("闯关失败！开始新游戏");
+        // 设置提示框的文本信息
+        msgBox.setText("闯关失败！开始新游戏");
 
-    // 设置提示框的图标（例如：QMessageBox::Information、QMessageBox::Warning等）
-    msgBox.setIcon(QMessageBox::Information);
+        // 设置提示框的图标（例如：QMessageBox::Information、QMessageBox::Warning等）
+        msgBox.setIcon(QMessageBox::Information);
 
-    // 添加按钮，例如：Ok、Cancel等
-    msgBox.addButton(QMessageBox::Ok);
+        // 添加按钮，例如：Ok、Cancel等
+        msgBox.addButton(QMessageBox::Ok);
 
-    // 显示提示框，并等待用户响应
-    msgBox.exec();
-
-    newGame();
+        // 显示提示框，并等待用户响应
+        msgBox.exec();
+        newGame();
 }
 
 void MainWindow::playBackgroundMusic() {
