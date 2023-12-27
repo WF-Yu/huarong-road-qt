@@ -46,7 +46,7 @@ private:
     void generateMenu();
     void generatePromptMsg();
     void ShowSuccessInfo();
-
+    void playBackgroundMusic();
     int keyBoardRow;
     int keyBoardColumn;
 

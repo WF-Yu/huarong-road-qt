@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
 
    // 设置背景音乐文件路径
    // QString musicFilePath = "F:/MyProject/Qt_projects/huarong-road-qt/LOL.mp3";
-
+    playBackgroundMusic();
     // Generate menu
     generateMenu();
 
@@ -455,4 +455,16 @@ void MainWindow::ShowSuccessInfo() {
     msgBox.exec();
 
     newGame();
+}
+void MainWindow::playBackgroundMusic() {
+    QMediaPlaylist *playlist = new QMediaPlaylist();
+    QString filePath = "F:/MyProject/Qt_projects/huarong-road-qt/LOL.mp3";
+    QMediaContent mediaContent(QUrl::fromLocalFile(filePath));
+    playlist->addMedia(mediaContent);
+    // playlist->addMedia(QUrl::fromLocalFile("LOL.mp3"));
+    playlist->setPlaybackMode(QMediaPlaylist::Loop);
+
+    QMediaPlayer *music = new QMediaPlayer();
+    music->setPlaylist(playlist);
+    music->play();
 }
