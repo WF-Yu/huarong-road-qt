@@ -352,8 +352,10 @@ l1:
                     Board* newBoard = new Board(*board, *move);
                     // if the new board is the same as previous board, continue
                     if (usedQHead != nullptr)
-                        if (!usedQHead->ifUsed(*newBoard))
+                        if (!usedQHead->ifUsed(*newBoard)) {
+                            qDebug() << "hi356";
                             goto l2;
+                        }
 
                     // generate new treeNode
                     TreeNode* newTreeNode = new TreeNode();
@@ -380,9 +382,12 @@ l1:
                     }
 
 
-                }
-        }
-l2:
+                } // if
+
+l2:         qDebug() << "hi387";
+
+        } // for
+
         // add the movement of goal car into queue also:
         if (goalCar.row > 0)
             if (board->data[goalCar.row - 1][goalCar.column] == 0)
@@ -393,9 +398,11 @@ l2:
                 Board* newBoard = new Board(*board, *move);
                 // if the new board is the same as previous board, continue
                 if (usedQHead != nullptr)
-                    if (!usedQHead->ifUsed(*newBoard))
+                    if (!usedQHead->ifUsed(*newBoard)) {
+                        qDebug() << "hi399";
                         goto l3;
 
+                    }
 
                 // generate new treeNode
                 TreeNode* newTreeNode = new TreeNode();
@@ -421,10 +428,9 @@ l2:
                     flag = true;
                     goto leave;
                 }
-
-
             }
-    l3:
+
+l3:
         if (goalCar.row + 2 < size)
             if (board->data[goalCar.row + 1][goalCar.column] == 0) {
                 Movement* move = new Movement(goalCar.ID, 2);
@@ -433,8 +439,10 @@ l2:
                 Board* newBoard = new Board(*board, *move);
                 // if the new board is the same as previous board, continue
                 if (usedQHead != nullptr)
-                    if (!usedQHead->ifUsed(*newBoard)) // if used: return false
+                    if (!usedQHead->ifUsed(*newBoard)) { // if used: return false
+                        qDebug() << "hi440";
                         goto l4;
+                    }
 
                 // generate new treeNode
                 TreeNode* newTreeNode = new TreeNode();
@@ -459,11 +467,8 @@ l2:
                     flag = true;
                     goto leave;
                 }
-
-
             }
 l4:
-        if (!ifNewNode) break;
         // move head into usedQueue.
         QueueNode* temp = head->next;
         if (usedQHead == nullptr) {
@@ -477,6 +482,8 @@ l4:
             usedQTail->next = nullptr;
         }
         head = temp;
+        if (!ifNewNode) break;
+        qDebug() << "hi483";
         if (head == nullptr) goto leave; // no solutions. actually program will not come to here.
     } // while(1)
 

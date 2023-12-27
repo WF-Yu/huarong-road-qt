@@ -13,12 +13,21 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QThread>
+#include <QTimer>
+#include <QElapsedTimer>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       mainBoard(5, 1)
 {
     // 设置窗口的初始大小为固定值
     resize(800, 800);
+    maxSteps = 15;
+    MaxTime = 15;
+    currentSteps = 0;
+    CurrentTime = 0;
+    clickCountLabel = nullptr;
+    timeLabel = nullptr;
     // Create the main view
     view = new QGraphicsView(this);
     setCentralWidget(view);
@@ -43,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
     generateMenu();
 
     generatePromptMsg();
+    // generateCounter();
 
 }
 void MainWindow::generatePromptMsg() {
@@ -70,8 +80,37 @@ void MainWindow::generatePromptMsg() {
     // Set the layout for the central widget
     centralWidget()->setLayout(centralLayout);
 
+
+    // Create labels for click counts and time
+    clickCountLabel = new QLabel(QString("Left steps %1").arg(maxSteps - currentSteps), this);
+    timeLabel = new QLabel(QString("Left Time %1").arg(MaxTime - CurrentTime), this);
+
+    // QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget());
+
+    centralLayout->addWidget(clickCountLabel);
+    centralLayout->addWidget(timeLabel);
+
+    // Set the layout for the central widget
+    centralWidget()->setLayout(centralLayout);
+
+    // Start the timer when the UI is generated
+    elapsedTimer.setInterval(1000); // 1000 milliseconds = 1 second
+    connect(&elapsedTimer, &QTimer::timeout, this, &MainWindow::updateCurrentTime);
+    elapsedTimer.start(); // Start the timer}
 }
 
+// Add slots to update click counts and time
+void MainWindow::updateClickCount() {
+    currentSteps++;
+    updateClickCountLabel();
+    if (currentSteps == maxSteps) {
+        ShowFailInfo();
+    }
+}
+
+void MainWindow::updateClickCountLabel() {
+    clickCountLabel->setText(QString("Left steps %1").arg(maxSteps - currentSteps));
+}
 void MainWindow::createGrid()
 {
     qDebug() << "draw grids";
@@ -160,6 +199,8 @@ void MainWindow::createGrid()
 // start a new game
 void MainWindow::newGame()
 {
+
+
     ifShowInstructions = false;
     bool ok;
     // int gridSize;
@@ -183,6 +224,9 @@ void MainWindow::newGame()
         // generate cars for the new game
         mainBoard.generateRandomCars();
         createGrid();
+        currentSteps = 0;
+        CurrentTime = 0;
+        elapsedTimer.start();
     }
 }
 
@@ -203,24 +247,42 @@ void MainWindow::generateMenu()
     QAction *showInstructions = new QAction(tr("Show Instructions"), this);
     connect(showInstructions, &QAction::triggered, this, &MainWindow::instructions);
     fileMenu->addAction(showInstructions);
+
+    QAction *actomadicRoutes = new QAction(tr("Automatic Routing"), this);
+    connect(actomadicRoutes, &QAction::triggered, this, &MainWindow::automaticRouting);
+    fileMenu->addAction(actomadicRoutes);
+
+
     // Separator between "New Game" and "Exit"
     fileMenu->addSeparator();
     // Menu option for exit
     QAction *exitAction = new QAction(tr("Exit"), this);
     connect(exitAction, &QAction::triggered, this, &QMainWindow::close);
     fileMenu->addAction(exitAction);
+
+    connect(&timer, &QTimer::timeout, this, &MainWindow::updateAndDraw);
+    // connect(&elapsedTimer, &QElapsedTimer::timeout, this, &MainWindow::updateCurrentTime);
 }
-
-
-
+void MainWindow::updateCurrentTime() {
+    CurrentTime++;
+    timeLabel->setText(QString("Left time %1").arg(MaxTime - CurrentTime));
+    if (CurrentTime == MaxTime) {
+        elapsedTimer.stop();
+        ShowFailInfo();
+    }
+}
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     QPointF clickPos = view->mapToScene(event->pos());
 
     if (event->button() == Qt::LeftButton) {
         handleLeftMouseClick(clickPos);
+        updateClickCount();
+
     } else if (event->button() == Qt::RightButton) {
         handleRightMouseClick(clickPos);
+        updateClickCount();
+
     }
 
     QMainWindow::mousePressEvent(event);
@@ -229,18 +291,25 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 void MainWindow::keyPressEvent(QKeyEvent *event) {
    if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_A) {
        qDebug() << "Ctrl+A Pressed";
+       updateClickCount();
        handKeyPress_CtrlA();
    }
    else if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_W) {
        qDebug() << "Ctrl+W Pressed";
+       updateClickCount();
+
        handKeyPress_CtrlW();
    }
    else if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_D) {
        qDebug() << "Ctrl+D Pressed";
+       updateClickCount();
+
        handKeyPress_CtrlD();
    }
    else if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_S) {
        qDebug() << "Ctrl+S Pressed";
+       updateClickCount();
+
        handKeyPress_CtrlS();
    }
    else if (event->key() == Qt::Key_A) {
@@ -456,6 +525,28 @@ void MainWindow::ShowSuccessInfo() {
 
     newGame();
 }
+void MainWindow::ShowFailInfo() {
+    // 创建 QMessageBox 实例
+    QMessageBox msgBox;
+
+    // 设置提示框的标题
+    msgBox.setWindowTitle("提示");
+
+    // 设置提示框的文本信息
+    msgBox.setText("闯关失败！开始新游戏");
+
+    // 设置提示框的图标（例如：QMessageBox::Information、QMessageBox::Warning等）
+    msgBox.setIcon(QMessageBox::Information);
+
+    // 添加按钮，例如：Ok、Cancel等
+    msgBox.addButton(QMessageBox::Ok);
+
+    // 显示提示框，并等待用户响应
+    msgBox.exec();
+
+    newGame();
+}
+
 void MainWindow::playBackgroundMusic() {
     QMediaPlaylist *playlist = new QMediaPlaylist();
     QString filePath = "F:/MyProject/Qt_projects/huarong-road-qt/LOL.mp3";
@@ -467,4 +558,48 @@ void MainWindow::playBackgroundMusic() {
     QMediaPlayer *music = new QMediaPlayer();
     music->setPlaylist(playlist);
     music->play();
+}
+void MainWindow::automaticRouting() {
+
+ifShowInstructions = false;
+    // 启动定时器
+    timer.start(1000);  // 1000毫秒 = 1秒
+}
+void MainWindow::updateAndDraw() {
+    int carID;
+    int direction;
+
+    Car* car = nullptr;
+
+    if (!mainBoard.cleared()) {
+        mainBoard.getInstructions(&carID, &direction);
+        // move the car:
+        if (carID <= mainBoard.numL2cars) {
+            car = &mainBoard.L2cars[carID - 1];
+        }
+        else car = &mainBoard.L3cars[carID - mainBoard.numL2cars - 1];
+        if (car->direction == 1) {
+            if (direction == 1) {
+                car->column -= 1;
+            }
+            else {
+                car->column += 1;
+
+            }
+        }
+        else {
+            if (direction == 1) {
+                car->row -= 1;
+            }
+            else {
+                car->row += 1;
+            }
+        }
+        mainBoard.update();
+        createGrid(); // draw new graph
+    }
+    else {
+        timer.stop();
+        ShowSuccessInfo();
+    }
 }

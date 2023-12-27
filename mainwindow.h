@@ -5,7 +5,8 @@
 #include <QGraphicsScene>
 #include <QComboBox>
 #include <QtMultimedia/QMediaPlayer>
-
+#include <QTimer>
+#include <QLabel>
 #include "board.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -41,22 +42,36 @@ public:
 private slots:
     void newGame();
     void instructions();
+    void automaticRouting();
 private:
     void createGrid();
     void generateMenu();
     void generatePromptMsg();
+    // void generateCounter();
+    void updateClickCount();
+    void updateClickCountLabel();
+    void updateCurrentTime();
     void ShowSuccessInfo();
+    void ShowFailInfo();
     void playBackgroundMusic();
+    void updateAndDraw();
     int keyBoardRow;
     int keyBoardColumn;
 
-    Board mainBoard; // board to show
+    int maxSteps;
+    int MaxTime;
+    int currentSteps;
+    int CurrentTime;
 
+    QTimer timer;
+    Board mainBoard; // board to show
+    QLabel* clickCountLabel;// = new QLabel("Mouse Clicks: 0 | Keyboard Clicks: 0", this);
+    QLabel* timeLabel;// = new QLabel("Elapsed Time: 0 seconds", this);
     QGraphicsScene *scene;
     QGraphicsView *view;
     QVector<QVector<QGraphicsRectItem*>> gridCells;
     QComboBox *difficultyComboBox; // Added ComboBox for difficulty selection
-
+QTimer elapsedTimer;
     QMediaPlayer *backgroundMusicPlayer;
 };
 

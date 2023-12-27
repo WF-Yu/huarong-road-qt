@@ -34,6 +34,7 @@ public:
     int numL3cars;
 
     Movement nextMove;
+    TreeNode* route;
  };
 
 #endif // BOARD_H
